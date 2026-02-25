@@ -74,8 +74,7 @@ runs:
         if [[ "${HTTP_STATUS}" == "403" || "${HTTP_STATUS}" == "404" ]]; then
           echo "::error title=Dependency graph not accessible::GitHub Dependency Graph API returned ${HTTP_STATUS} for ${REPO}."
           echo "::error::Ensure the dependency graph is enabled:"
-          echo "::error::  Public repos:  enabled by default."
-          echo "::error::  Private repos: Settings → Security → Code security and analysis → Dependency graph → Enable"
+          echo "::error::  https://github.com/${REPO}/network/dependencies"
           exit 1
         fi
 
