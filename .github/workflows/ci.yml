@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    name: Self-test action
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # for GitHub Dependency Graph API
+      id-token: write # for OIDC token acquisition
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run action
+        uses: ./
+        with:
+          dry-run: "false"  # TODO: change this for prod, unless we want this as an integration test
+
+      # Verify the SBOM file was written to the expected path
+      - name: Verify SBOM file exists and is valid JSON
+        shell: bash
+        run: |
+          if [[ ! -f sbom.spdx.json ]]; then
+            echo "::error::Expected sbom.spdx.json was not created."
+            exit 1
+          fi
+          jq empty sbom.spdx.json
+          echo "SBOM file is valid JSON ($(wc -c < sbom.spdx.json) bytes)."
+
+      # Sanity-check that it looks like an SPDX document
+      - name: Verify SBOM is SPDX format
+        shell: bash
+        run: |
+          SPDX_VERSION=$(jq -r '.spdxVersion // empty' sbom.spdx.json)
+          if [[ -z "${SPDX_VERSION}" ]]; then
+            echo "::error::sbom.spdx.json does not appear to be an SPDX document (missing .spdxVersion)."
+            exit 1
+          fi
+          echo "SPDX version: ${SPDX_VERSION}"
