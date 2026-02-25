@@ -1,0 +1,129 @@
+name: "PG Atlas SBOM Submission"
+description: >
+  Fetches the repo's SBOM from the GitHub Dependency Graph API and submits it to the PG Atlas
+  ingestion endpoint, authenticated via GitHub OIDC. No secrets are shared.
+branding:
+  icon: "globe"
+  color: "orange"
+
+inputs:
+  api-url:
+    description: "Base URL of the PG Atlas ingestion API."
+    required: false
+    default: "https://httpbin.org/post"  # this is just for early testing
+  dry-run:
+    description: >
+      If true, fetch the SBOM and obtain the OIDC token, but skip the final submission. Useful for
+      testing action setup without sending data.
+    required: false
+    default: "false"
+
+outputs:
+  sbom-path:
+    description: "Path to the SBOM file that was fetched (SPDX 2.3 JSON)."
+    value: ${{ steps.sbom.outputs.sbom-path }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Request OIDC token
+      id: oidc
+      shell: bash
+      env:
+        AUDIENCE: ${{ inputs.api-url }}
+      run: |
+        if [[ -z "${ACTIONS_ID_TOKEN_REQUEST_URL}" ]]; then
+          echo "::error title=Missing permission::id-token: write is not set in this workflow's permissions block."
+          echo "::error::Add the following to your job:"
+          echo "::error::  permissions:"
+          echo "::error::    id-token: write"
+          echo "::error::    contents: read"
+          echo "::error::See https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-sbom-action#authentication"
+          exit 1
+        fi
+
+        OIDC_RESPONSE=$(curl --silent --fail \
+          -H "Authorization: Bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+          "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=${AUDIENCE}")
+
+        OIDC_TOKEN=$(echo "${OIDC_RESPONSE}" | jq -r '.value')
+
+        if [[ -z "${OIDC_TOKEN}" || "${OIDC_TOKEN}" == "null" ]]; then
+          echo "::error::Failed to extract OIDC token from response."
+          exit 1
+        fi
+
+        echo "token=${OIDC_TOKEN}" >> "$GITHUB_OUTPUT"
+        echo "OIDC token obtained."
+
+    - name: Fetch SBOM from GitHub Dependency Graph API
+      id: sbom
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+      run: |
+        HTTP_STATUS=$(curl --silent \
+          --output sbom.spdx.json \
+          --write-out "%{http_code}" \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          "https://api.github.com/repos/${REPO}/dependency-graph/sbom")
+
+        if [[ "${HTTP_STATUS}" == "403" || "${HTTP_STATUS}" == "404" ]]; then
+          echo "::error title=Dependency graph not accessible::GitHub Dependency Graph API returned ${HTTP_STATUS} for ${REPO}."
+          echo "::error::Ensure the dependency graph is enabled:"
+          echo "::error::  Public repos:  enabled by default."
+          echo "::error::  Private repos: Settings → Security → Code security and analysis → Dependency graph → Enable"
+          exit 1
+        fi
+
+        if [[ "${HTTP_STATUS}" != "200" ]]; then
+          echo "::error::GitHub Dependency Graph API returned unexpected status ${HTTP_STATUS}."
+          cat sbom.spdx.json || true
+          exit 1
+        fi
+
+        BYTES=$(wc -c < sbom.spdx.json)
+        echo "SBOM fetched (${BYTES} bytes)."
+        echo "sbom-path=sbom.spdx.json" >> "$GITHUB_OUTPUT"
+
+    - name: Submit SBOM to PG Atlas
+      if: ${{ inputs.dry-run != 'true' }}
+      shell: bash
+      env:
+        API_URL: ${{ inputs.api-url }}
+        OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
+        SBOM_PATH: ${{ steps.sbom.outputs.sbom-path }}
+      run: |
+        HTTP_STATUS=$(curl --silent \
+          --output response.json \
+          --write-out "%{http_code}" \
+          -X POST \
+          -H "Authorization: Bearer ${OIDC_TOKEN}" \
+          -H "Content-Type: application/json" \
+          --data-binary "@${SBOM_PATH}" \
+          "${API_URL}/ingest/sbom")
+
+        if [[ "${HTTP_STATUS}" == "202" ]]; then
+          echo "SBOM submitted successfully (202 Accepted)."
+        elif [[ "${HTTP_STATUS}" == "401" ]]; then
+          echo "::error title=Authentication failed::The OIDC token was rejected by the PG Atlas API (401)."
+          cat response.json || true
+          exit 1
+        elif [[ "${HTTP_STATUS}" == "422" ]]; then
+          echo "::error title=Validation failed::The submitted SBOM failed validation (422)."
+          cat response.json || true
+          exit 1
+        else
+          echo "::error::Unexpected response from PG Atlas API: HTTP ${HTTP_STATUS}"
+          cat response.json || true
+          exit 1
+        fi
+
+    - name: Dry run complete
+      if: ${{ inputs.dry-run == 'true' }}
+      shell: bash
+      run: |
+        echo "Dry run: SBOM fetch and OIDC token acquisition succeeded. Submission skipped."
