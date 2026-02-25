@@ -8,7 +8,7 @@ branding:
 
 inputs:
   api-url:
-    description: "Base URL of the PG Atlas ingestion API."
+    description: "Full URL of the PG Atlas ingestion API."
     required: false
     default: "https://httpbin.org/post"  # this is just for early testing
   dry-run:
@@ -103,7 +103,7 @@ runs:
           -H "Authorization: Bearer ${OIDC_TOKEN}" \
           -H "Content-Type: application/json" \
           --data-binary "@${SBOM_PATH}" \
-          "${API_URL}/ingest/sbom")
+          "${API_URL}")
 
         if [[ "${HTTP_STATUS}" == "202" ]]; then
           echo "SBOM submitted successfully (202 Accepted)."
