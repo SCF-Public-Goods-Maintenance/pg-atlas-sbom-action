@@ -13,7 +13,7 @@ jobs:
       contents: read # for GitHub Dependency Graph API
       id-token: write # for OIDC token acquisition
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Run action
         uses: ./
