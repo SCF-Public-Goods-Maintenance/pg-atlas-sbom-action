@@ -10,7 +10,7 @@ inputs:
   api-url:
     description: "Full URL of the PG Atlas ingestion API."
     required: false
-    default: "https://httpbin.org/post"  # this is just for early testing
+    default: "https://pg-atlas-backend-h8gen.ondigitalocean.app"  # Digital Ocean dev deployment
   dry-run:
     description: >
       If true, fetch the SBOM and obtain the OIDC token, but skip the final submission. Useful for
