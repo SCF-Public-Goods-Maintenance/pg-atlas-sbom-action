@@ -8,9 +8,13 @@ branding:
 
 inputs:
   api-url:
-    description: "Full URL of the PG Atlas ingestion API."
+    description: "Base URL of the PG Atlas ingestion API."
     required: false
-    default: "https://pg-atlas-backend-h8gen.ondigitalocean.app/ingest/sbom"  # Digital Ocean dev deployment
+    default: "https://pg-atlas-backend-h8gen.ondigitalocean.app"  # Digital Ocean dev deployment
+  submission-path:
+    description: "API endpoint for SBOM ingestion."
+    required: false
+    default: "/ingest/sbom"
   dry-run:
     description: >
       If true, fetch the SBOM and obtain the OIDC token, but skip the final submission. Useful for
@@ -93,6 +97,7 @@ runs:
       shell: bash
       env:
         API_URL: ${{ inputs.api-url }}
+        SUBMISSION_PATH: ${{ inputs.submission-path }}
         OIDC_TOKEN: ${{ steps.oidc.outputs.token }}
         SBOM_PATH: ${{ steps.sbom.outputs.sbom-path }}
       run: |
@@ -103,7 +108,7 @@ runs:
           -H "Authorization: Bearer ${OIDC_TOKEN}" \
           -H "Content-Type: application/json" \
           --data-binary "@${SBOM_PATH}" \
-          "${API_URL}")
+          "${API_URL}${SUBMISSION_PATH}")
 
         if [[ "${HTTP_STATUS}" == "202" ]]; then
           echo "SBOM submitted successfully (202 Accepted)."
