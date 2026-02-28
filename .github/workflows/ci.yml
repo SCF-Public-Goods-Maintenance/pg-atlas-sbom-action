@@ -35,7 +35,7 @@ jobs:
       - name: Verify SBOM is SPDX format
         shell: bash
         run: |
-          SPDX_VERSION=$(jq -r '.spdxVersion // empty' sbom.spdx.json)
+          SPDX_VERSION=$(jq -r '.sbom.spdxVersion // empty' sbom.spdx.json)
           if [[ -z "${SPDX_VERSION}" ]]; then
             echo "::error::sbom.spdx.json does not appear to be an SPDX document (missing .spdxVersion)."
             exit 1
