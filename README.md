@@ -1,7 +1,7 @@
 # PG Atlas SBOM Action
 
-This is an early experiment. Take everything you read here with a grain of salt.
-It may or may not work as described.
+This is an early experiment. Take everything you read here with a grain of salt. It may or may not
+work as described.
 
 A GitHub Action that fetches your repository's SBOM from the
 [GitHub Dependency Graph API](https://docs.github.com/en/rest/dependency-graph/sboms) and submits it
@@ -15,10 +15,10 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     permissions:
-      contents: read   # for GitHub Dependency Graph API
-      id-token: write  # for OIDC authentication to PG Atlas
+      contents: read # for GitHub Dependency Graph API
+      id-token: write # for OIDC authentication to PG Atlas
     steps:
-      - uses: SCF-Public-Goods-Maintenance/pg-atlas-sbom-action@957702113e3aa1f3d690c2a7b1b11dbc2a55493e
+      - uses: SCF-Public-Goods-Maintenance/pg-atlas-sbom-action@3b49bfea5a8b78d04f00ad7bd633e107241a3485
 ```
 
 That's it. The action uses the default production API URL; no other inputs are required.
@@ -49,10 +49,11 @@ lock file is committed for the SBOM to contain dependency data.
 
 ## Inputs
 
-| Input     | Required | Default                      | Description                                                                                                       |
-| --------- | -------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `api-url` | No       | Production PG Atlas endpoint | Full URL of the PG Atlas ingestion API. Override to point at a staging environment, or your weekend experiment.   |
-| `dry-run` | No       | `false`                      | If `true`, fetch the SBOM and obtain the OIDC token but skip the final submission. Useful for testing your setup. |
+| Input             | Required | Default                      | Description                                                                                                                  |
+| ----------------- | -------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `api-url`         | No       | Production PG Atlas endpoint | Base URL of the PG Atlas ingestion API. Override to point at a staging environment, or your weekend experiment.              |
+| `submission-path` | No       | `/ingest/sbom`               | API endpoint path appended to `api-url` for SBOM ingestion. Override if the server exposes the endpoint at a different path. |
+| `dry-run`         | No       | `false`                      | If `true`, fetch the SBOM and obtain the OIDC token but skip the final submission. Useful for testing your setup.            |
 
 ## Outputs
 
@@ -84,8 +85,8 @@ principal mitigations are:
 
 1. The PG Atlas reference graph cross-check flags dependency declarations that diverge significantly
    from the inferred graph, making inflation detectable.
-2. All submissions are logged with the `repository` and `actor` (triggering GitHub user) OIDC claims,
-   making falsification an attributable and auditable act.
+2. All submissions are logged with the `repository` and `actor` (triggering GitHub user) OIDC
+   claims, making falsification an attributable and auditable act.
 3. Community review and the public leaderboard create social accountability.
 
 Both GitHub-hosted and self-hosted runners are supported; there is no meaningful difference in the
