@@ -85,8 +85,8 @@ principal mitigations are:
 
 1. The PG Atlas reference graph cross-check flags dependency declarations that diverge significantly
    from the inferred graph, making inflation detectable.
-2. All submissions are logged with the `repository` and `actor` (triggering GitHub user) OIDC
-   claims, making falsification an attributable and auditable act.
+2. All submissions are logged with the `repository` and `actor` (triggering GitHub user) OIDC claims,
+   making falsification an attributable and auditable act.
 3. Community review and the public leaderboard create social accountability.
 
 Both GitHub-hosted and self-hosted runners are supported; there is no meaningful difference in the
@@ -130,19 +130,53 @@ this repository.
 
 ## Local development
 
-```bash
-# Validate action.yml syntax
-gh act --list
+### Conventional Commits (pre-commit hook)
 
-# Dry-run the action against your own repo (requires github CLI and act)
+Commits must follow [Conventional Commits](https://www.conventionalcommits.org/). Install the git
+hook so violations are caught before they reach CI:
+
+```bash
+pip install pre-commit  # or: brew install pre-commit
+pre-commit install --hook-type commit-msg
+```
+
+Releases and `CHANGELOG.md` are managed automatically by
+[release-please](https://github.com/googleapis/release-please) on every push to `main`.
+
+### Linting action.yml and workflow files
+
+[actionlint](https://github.com/rhysd/actionlint) validates GitHub Actions syntax well beyond plain
+YAML parsing:
+
+```bash
+# macOS / Linux with Homebrew
+brew install actionlint
+
+# Cross-platform with Go
+go install github.com/rhysd/actionlint/cmd/actionlint@latest
+```
+
+Then run from the repo root:
+
+```bash
+actionlint -verbose
+```
+
+### Running the workflow locally with act
+
+[act](https://nektosact.com) lets you run the CI workflow on your machine. The easiest install on
+Linux is as a `gh` extension:
+
+```bash
+gh extension install https://github.com/nektos/gh-act
+```
+
+Dry-run the self-test (fetches your repo's real SBOM but skips submission):
+
+```bash
 gh act push -W .github/workflows/ci.yml
 ```
 
 ## License
 
 [MIT](LICENSE)
-
-## TODO
-
-- Enforce Conventional Commits once the MVP is tested with external repos
-- Check in stellarcarbon/sc-audit which changelog action we use there
