@@ -132,6 +132,8 @@ this repository.
 
 ### Conventional Commits (pre-commit hook)
 
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/SCF-Public-Goods-Maintenance/pg-atlas-sbom-action/main.svg)](https://results.pre-commit.ci/latest/github/SCF-Public-Goods-Maintenance/pg-atlas-sbom-action/main)
+
 Commits must follow [Conventional Commits](https://www.conventionalcommits.org/). Install the git
 hook so violations are caught before they reach CI:
 
