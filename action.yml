@@ -10,7 +10,7 @@ inputs:
   api-url:
     description: "Base URL of the PG Atlas ingestion API."
     required: false
-    default: "https://pg-atlas-backend-h8gen.ondigitalocean.app"  # Digital Ocean dev deployment
+    default: "https://api.pgatlas.xyz"
   submission-path:
     description: "API endpoint for SBOM ingestion."
     required: false
