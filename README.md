@@ -18,7 +18,7 @@ jobs:
       contents: read # for GitHub Dependency Graph API
       id-token: write # for OIDC authentication to PG Atlas
     steps:
-      - uses: SCF-Public-Goods-Maintenance/pg-atlas-sbom-action@f2f44ed8cec916dd412c86ebcab796655656329f
+      - uses: SCF-Public-Goods-Maintenance/pg-atlas-sbom-action@bca8911b12604b102c41dab217b20c0a005fb126
 ```
 
 That's it. The action uses the default production API URL; no other inputs are required.
@@ -122,6 +122,12 @@ The dependency graph is populated from lock files. If your SBOM is sparse:
 - Commit your lock file (`Cargo.lock`, `package-lock.json`, `go.sum`, etc.) — do not add it to
   `.gitignore`.
 - For monorepos, all lock files in any subdirectory are detected automatically.
+
+Some software ecosystems are not supported out-of-the-box by GitHub. Please improve your results by
+configuring
+[automatic dependency submission](https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/secure-your-dependencies/submit-dependencies-automatically)
+or a [custom setup](https://github.com/orgs/SCF-Public-Goods-Maintenance/discussions/10), e.g. for
+Gradle and Swift.
 
 ### `Authentication failed (401)`
 
