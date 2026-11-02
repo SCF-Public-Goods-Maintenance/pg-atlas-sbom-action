@@ -43,6 +43,9 @@ feature to be enabled for your repository:
 
 > Insights → Dependency graph → if you don't see it: Enable.
 
+GitHub generates SBOM exports asynchronously. The action polls for the report for up to 10 minutes
+before failing if it is still processing.
+
 GitHub's dependency graph is populated from your lock files, also known as package manifests (e.g.
 `Cargo.lock`, `package-lock.json`, `go.sum`, `requirements.txt`, `poetry.lock`). Ensure at least one
 lock file is committed for the SBOM to contain dependency data.

@@ -18,7 +18,7 @@ jobs:
       - name: Run action
         uses: ./
         with:
-          dry-run: "false"  # TODO: change this for prod, unless we want this as an integration test
+          dry-run: "true"
 
       # Verify the SBOM file was written to the expected path
       - name: Verify SBOM file exists and is valid JSON
