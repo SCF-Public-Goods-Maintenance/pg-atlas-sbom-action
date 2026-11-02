@@ -67,13 +67,13 @@ runs:
         GH_TOKEN: ${{ github.token }}
         REPO: ${{ github.repository }}
       run: |
-        HTTP_STATUS=$(curl --silent \
-          --output sbom.spdx.json \
+        HTTP_STATUS=$(curl --silent --show-error \
+          --output response.json \
           --write-out "%{http_code}" \
           -H "Authorization: Bearer ${GH_TOKEN}" \
           -H "Accept: application/vnd.github+json" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          "https://api.github.com/repos/${REPO}/dependency-graph/sbom")
+          -H "X-GitHub-Api-Version: 2026-03-10" \
+          "https://api.github.com/repos/${REPO}/dependency-graph/sbom/generate-report")
 
         if [[ "${HTTP_STATUS}" == "403" || "${HTTP_STATUS}" == "404" ]]; then
           echo "::error title=Dependency graph not accessible::GitHub Dependency Graph API returned ${HTTP_STATUS} for ${REPO}."
@@ -82,11 +82,55 @@ runs:
           exit 1
         fi
 
-        if [[ "${HTTP_STATUS}" != "200" ]]; then
-          echo "::error::GitHub Dependency Graph API returned unexpected status ${HTTP_STATUS}."
-          cat sbom.spdx.json || true
+        if [[ "${HTTP_STATUS}" != "201" ]]; then
+          echo "::error::GitHub Dependency Graph API returned unexpected status ${HTTP_STATUS} while requesting SBOM generation."
+          cat response.json || true
           exit 1
         fi
+
+        SBOM_URL=$(jq -r '.sbom_url // empty' response.json)
+        if [[ -z "${SBOM_URL}" || "${SBOM_URL}" != "https://api.github.com/repos/${REPO}/dependency-graph/sbom/fetch-report/"* ]]; then
+          echo "::error::GitHub Dependency Graph API did not return a valid SBOM report URL."
+          cat response.json || true
+          exit 1
+        fi
+
+        MAX_ATTEMPTS=120
+        POLL_INTERVAL=5
+        for ((ATTEMPT = 1; ATTEMPT <= MAX_ATTEMPTS; ATTEMPT++)); do
+          HTTP_STATUS=$(curl --silent --show-error --location \
+            --output sbom.spdx.json \
+            --write-out "%{http_code}" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "${SBOM_URL}")
+
+          if [[ "${HTTP_STATUS}" == "200" ]]; then
+            break
+          fi
+
+          if [[ "${HTTP_STATUS}" == "202" ]]; then
+            if [[ "${ATTEMPT}" == "${MAX_ATTEMPTS}" ]]; then
+              echo "::error::GitHub SBOM report was still processing after $((MAX_ATTEMPTS * POLL_INTERVAL)) seconds."
+              exit 1
+            fi
+            echo "SBOM report is still processing; retrying in ${POLL_INTERVAL} seconds (${ATTEMPT}/${MAX_ATTEMPTS})."
+            sleep "${POLL_INTERVAL}"
+            continue
+          fi
+
+          if [[ "${HTTP_STATUS}" == "403" || "${HTTP_STATUS}" == "404" ]]; then
+            echo "::error title=Dependency graph not accessible::GitHub Dependency Graph API returned ${HTTP_STATUS} for ${REPO}."
+            echo "::error::Ensure the dependency graph is enabled:"
+            echo "::error::  https://github.com/${REPO}/network/dependencies"
+            exit 1
+          fi
+
+          echo "::error::GitHub Dependency Graph API returned unexpected status ${HTTP_STATUS} while fetching the SBOM report."
+          cat sbom.spdx.json || true
+          exit 1
+        done
 
         BYTES=$(wc -c < sbom.spdx.json)
         echo "SBOM fetched (${BYTES} bytes)."
