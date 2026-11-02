@@ -6,6 +6,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 <!-- Release notes are generated automatically by release-please. Do not edit by hand. -->
 
+## [1.0.1](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-sbom-action/compare/v1.0.0...v1.0.1) (2026-11-02)
+
+
+### Bug Fixes
+
+* trigger SBOM generation first, then fetch ([#7](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-sbom-action/issues/7)) ([432e41e](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-sbom-action/commit/432e41ec49744a1cd14e326a799f68f5985e8de5))
+
 ## 1.0.0 (2026-02-28)
 
 ### Bug Fixes
