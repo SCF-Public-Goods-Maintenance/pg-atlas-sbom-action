@@ -50,6 +50,12 @@ GitHub's dependency graph is populated from your lock files, also known as packa
 `Cargo.lock`, `package-lock.json`, `go.sum`, `requirements.txt`, `poetry.lock`). Ensure at least one
 lock file is committed for the SBOM to contain dependency data.
 
+## Ecosystem support
+
+See the [ecosystem support guide](docs/ecosystem-support.md) for tested dependency files, required
+GitHub settings, demo repositories, and how to distinguish processing delays from missing coverage.
+Start with your current settings and only change what the ecosystem tests show is needed.
+
 ## Inputs
 
 | Input             | Required | Default                      | Description                                                                                                                  |
