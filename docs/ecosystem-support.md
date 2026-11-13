@@ -104,7 +104,7 @@ and missing relationships. Longer live waits can be assessed from subsequent run
 ## Links that still need correction
 
 These are package-to-repository attribution findings, not missing packages in the exported SBOM.
-Alex owns backend implementation; the demos provide reproducible checks for his fixes.
+There will be backend implementation for fixes; the demos provide reproducible checks for those fixes.
 
 | Case | Received package | Observed Atlas link | Expected repository |
 | --- | --- | --- | --- |
