@@ -104,7 +104,9 @@ and missing relationships. Longer live waits can be assessed from subsequent run
 ## Links that still need correction
 
 These are package-to-repository attribution findings, not missing packages in the exported SBOM.
-There will be backend implementation for fixes; the demos provide reproducible checks for those fixes.
+The demos provide reproducible checks for the implementation fixes.
+
+Swift and Go corrections have been proposed in [backend PR #109](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-backend/pull/109) and [PR #110](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-backend/pull/110). Both passed local API/database/worker checks. These local checks do not supersede the production observations below. Tansu remains a separate attribution finding.
 
 | Case | Received package | Observed Atlas link | Expected repository |
 | --- | --- | --- | --- |
@@ -131,3 +133,25 @@ always have the same graph structure.
 
 GitHub's reverse **Dependents** page is not an acceptance check. Dependencies submitted through
 snapshots may appear in exported SBOMs without appearing on that page.
+
+
+## Verification review — 15 November 2026
+
+The setup table was reviewed against the ten local demos' dependency files,
+expectations and workflow Action pins. This was a file review, not a new production
+run or a fresh check of repository settings. The production evidence remains dated
+13 November 2026, with seven passing ecosystems and three attribution findings.
+
+The prepared Go and Swift verification updates additionally check exact canonical
+IDs, vertex types and versions, including retention of their external controls.
+These updates are on local/review branches, not an assertion that every published
+demo currently includes those checks. Pending timeout remains incomplete evidence.
+
+For a post-change retest, first confirm deployment and explicit replay of the
+selected stored submission through the maintenance process. Identical resubmission
+is deduplicated and does not run the new resolver. The read-only verification workflow
+does not trigger replay. Use Go submission 2424 or Swift submission 2426 unless a
+replacement is agreed, and preserve the fixture revision and workflow artifacts.
+A processed status alone does not establish that a replay occurred after a change.
+The dependency endpoint returns the current repository graph, not an immutable graph
+snapshot tied to a submission.
