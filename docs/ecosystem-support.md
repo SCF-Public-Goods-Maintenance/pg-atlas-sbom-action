@@ -29,7 +29,7 @@ ecosystem-specific GitHub setting was needed in that demo.
 
 | Ecosystem | Committed dependency files | Additional setup | Processed Atlas result |
 | --- | --- | --- | --- |
-| [Python / uv](https://github.com/pgm-testing/sbom-demo-python) | `pyproject.toml`, `uv.lock` | No extra setting | Three original Stellar probes pass; Tansu links to its historical repository |
+| [Python / uv](https://github.com/pgm-testing/sbom-demo-python) | `pyproject.toml`, `uv.lock` | No extra setting | Three Stellar probes pass in recorded checks; revised fixture awaits a fresh baseline |
 | [JavaScript / npm](https://github.com/pgm-testing/sbom-demo-npm) | `package.json`, `package-lock.json` | No extra setting | All five Stellar probes pass |
 | [Maven](https://github.com/pgm-testing/sbom-demo-maven) | `pom.xml` with pinned direct versions | No extra setting | Java and KMP probes pass |
 | [Gradle](https://github.com/pgm-testing/sbom-demo-gradle) | `build.gradle.kts`, `settings.gradle.kts`, `gradle.lockfile` | Enable Automatic dependency submission | Java and KMP probes pass after the setting change |
@@ -106,16 +106,14 @@ and missing relationships. Longer live waits can be assessed from subsequent run
 These are package-to-repository attribution findings, not missing packages in the exported SBOM.
 The demos provide reproducible checks for the implementation fixes.
 
-Swift and Go corrections have been proposed in [backend PR #109](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-backend/pull/109) and [PR #110](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-backend/pull/110). Both passed local API/database/worker checks. These local checks do not supersede the production observations below. Tansu remains a separate attribution finding.
+Swift and Go corrections have been proposed in [backend PR #109](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-backend/pull/109) and [PR #110](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-backend/pull/110). Both passed local API/database/worker checks. These local checks do not supersede the production observations below.
 
 | Case | Received package | Observed Atlas link | Expected repository |
 | --- | --- | --- | --- |
-| Tansu | `pkg:pypi/tansu@1.0.1` | `pkg:github/tupui/soroban-versioning` | `pkg:github/Consulting-Manao/tansu` |
 | Swift SDK | `pkg:swift/github.com/soneso/stellar-ios-mac-sdk@3.14.0` | Unresolved external Swift package | `pkg:github/Soneso/stellar-ios-mac-sdk` |
 | nebu | `pkg:golang/github.com/withobsrvr/nebu@v0.7.2` | Unresolved external Go package | `pkg:github/withObsrvr/nebu` |
 
-Evidence: [Python submission 2430](https://api.pgatlas.xyz/ingest/sbom/2430),
-[Swift submission 2426](https://api.pgatlas.xyz/ingest/sbom/2426),
+Evidence: [Swift submission 2426](https://api.pgatlas.xyz/ingest/sbom/2426),
 and [Go submission 2424](https://api.pgatlas.xyz/ingest/sbom/2424).
 
 OpenGrants and StellarAtlas had package-name mappings that were not supported by publication evidence.
@@ -140,7 +138,8 @@ snapshots may appear in exported SBOMs without appearing on that page.
 The setup table was reviewed against the ten local demos' dependency files,
 expectations and workflow Action pins. This was a file review, not a new production
 run or a fresh check of repository settings. The production evidence remains dated
-13 November 2026, with seven passing ecosystems and three attribution findings.
+13 November 2026. Seven ecosystems have full passing runs on record; the revised
+Python fixture awaits a fresh baseline, while Swift and Go await live retesting.
 
 The prepared Go and Swift verification updates additionally check exact canonical
 IDs, vertex types and versions, including retention of their external controls.
