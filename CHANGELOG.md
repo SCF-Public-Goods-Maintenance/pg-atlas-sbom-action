@@ -6,6 +6,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 <!-- Release notes are generated automatically by release-please. Do not edit by hand. -->
 
+## [1.1.0](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-sbom-action/compare/v1.0.1...v1.1.0) (2026-11-19)
+
+
+### Features
+
+* add floating version tags ([#13](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-sbom-action/issues/13)) ([281a7aa](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-sbom-action/commit/281a7aaf5a280fd923779503c695801e75c0710a))
+
 ## [1.0.1](https://github.com/SCF-Public-Goods-Maintenance/pg-atlas-sbom-action/compare/v1.0.0...v1.0.1) (2026-11-02)
 
 
