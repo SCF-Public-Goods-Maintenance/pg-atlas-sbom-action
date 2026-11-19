@@ -50,11 +50,18 @@ GitHub's dependency graph is populated from your lock files, also known as packa
 `Cargo.lock`, `package-lock.json`, `go.sum`, `requirements.txt`, `poetry.lock`). Ensure at least one
 lock file is committed for the SBOM to contain dependency data.
 
+### Gradle
+
+For Gradle projects, enable **Automatic dependency submission** in the repository's
+**Settings → Advanced Security → Dependency graph** settings, in addition to enabling
+Dependency graph itself. Allow the dependency collection workflow to finish before
+running the SBOM Action so the export includes your Gradle dependencies.
+
 ## Ecosystem support
 
 See the [ecosystem support guide](docs/ecosystem-support.md) for tested dependency files, required
-GitHub settings, demo repositories, and how to distinguish processing delays from missing coverage.
-Start with your current settings and only change what the ecosystem tests show is needed.
+GitHub settings and verification badges. See [end-to-end testing](docs/e2e-testing.md)
+for the test setup, limitations and interpretation of verification results.
 
 ## Inputs
 
