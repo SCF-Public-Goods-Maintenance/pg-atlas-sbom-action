@@ -1,8 +1,5 @@
 # PG Atlas SBOM Action
 
-This is an early experiment. Take everything you read here with a grain of salt. It may or may not
-work as described.
-
 A GitHub Action that fetches your repository's SBOM from the
 [GitHub Dependency Graph API](https://docs.github.com/en/rest/dependency-graph/sboms) and submits it
 to the [PG Atlas](https://scf-public-goods-maintenance.github.io/pg-atlas) ingestion endpoint.
@@ -18,12 +15,12 @@ jobs:
       contents: read # for GitHub Dependency Graph API
       id-token: write # for OIDC authentication to PG Atlas
     steps:
-      - uses: SCF-Public-Goods-Maintenance/pg-atlas-sbom-action@432e41ec49744a1cd14e326a799f68f5985e8de5
+      - uses: SCF-Public-Goods-Maintenance/pg-atlas-sbom-action@20d2cff7ec9335c43e5e50451dc2576572ff7d49 # v1.0.1
 ```
 
 That's it. The action uses the default production API URL; no other inputs are required.
 
-### Recommended trigger
+### Recommended configuration
 
 ```yaml
 on:
@@ -31,10 +28,16 @@ on:
     branches: [main]
   release:
     types: [published]
+
+concurrency:
+  group: sbom-${{ github.ref }}
+  cancel-in-progress: true
 ```
 
 Running on push to `main` keeps the dependency graph in PG Atlas up to date as your project evolves.
 Running on release ensures a snapshot is recorded at each version boundary.
+
+The concurrency guard helps reduce clutter in your submission history list.
 
 ## Prerequisites
 
@@ -46,22 +49,23 @@ feature to be enabled for your repository:
 GitHub generates SBOM exports asynchronously. The action polls for the report for up to 10 minutes
 before failing if it is still processing.
 
-GitHub's dependency graph is populated from your lock files, also known as package manifests (e.g.
-`Cargo.lock`, `package-lock.json`, `go.sum`, `requirements.txt`, `poetry.lock`). Ensure at least one
-lock file is committed for the SBOM to contain dependency data.
+GitHub's dependency graph is populated from your lock files and package manifests (e.g. `Cargo.lock`,
+`package-lock.json`, `go.sum`, `requirements.txt`, `poetry.lock`). Ensure at least one lock file is
+committed for the SBOM to contain dependency data.
 
 ### Gradle
 
-For Gradle projects, enable **Automatic dependency submission** in the repository's
-**Settings → Advanced Security → Dependency graph** settings, in addition to enabling
-Dependency graph itself. Allow the dependency collection workflow to finish before
-running the SBOM Action so the export includes your Gradle dependencies.
+For Gradle projects, enable **Automatic dependency submission** in the repository's **Settings →
+Advanced Security → Dependency graph** settings, in addition to enabling Dependency graph itself.
+Allow the dependency collection workflow to finish before running the SBOM Action so the export
+includes your Gradle dependencies.
 
 ## Ecosystem support
 
-See the [ecosystem support guide](docs/ecosystem-support.md) for tested dependency files, required
-GitHub settings and verification badges. See [end-to-end testing](docs/e2e-testing.md)
-for the test setup, limitations and interpretation of verification results.
+The GitHub Dependency Graph that we rely on supports popular software ecosystems. See the
+[ecosystem support guide](docs/ecosystem-support.md) for tested dependency files, required GitHub
+settings, and verification badges. See [end-to-end testing](docs/e2e-testing.md) for the test setup,
+limitations, and interpretation of verification results.
 
 ## Inputs
 
@@ -139,11 +143,12 @@ The dependency graph is populated from lock files. If your SBOM is sparse:
   `.gitignore`.
 - For monorepos, all lock files in any subdirectory are detected automatically.
 
-Some software ecosystems are not supported out-of-the-box by GitHub. Please improve your results by
-configuring
-[automatic dependency submission](https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/secure-your-dependencies/submit-dependencies-automatically)
-or a [custom setup](https://github.com/orgs/SCF-Public-Goods-Maintenance/discussions/10), e.g. for
-Gradle and Swift.
+Is your software ecosystem covered in the [ecosystem support guide](docs/ecosystem-support.md)? If
+following the instructions does not give the expected result, consider opening an issue in the linked
+example repo. We can try to reproduce your issue there.
+
+For ecosystems and package managers without tested support, please add to the discussion in
+[PGM #10](https://github.com/orgs/SCF-Public-Goods-Maintenance/discussions/10).
 
 ### `Authentication failed (401)`
 
