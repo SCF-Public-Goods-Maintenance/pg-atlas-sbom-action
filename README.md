@@ -15,7 +15,7 @@ jobs:
       contents: read # for GitHub Dependency Graph API
       id-token: write # for OIDC authentication to PG Atlas
     steps:
-      - uses: SCF-Public-Goods-Maintenance/pg-atlas-sbom-action@20d2cff7ec9335c43e5e50451dc2576572ff7d49 # v1.0.1
+      - uses: SCF-Public-Goods-Maintenance/pg-atlas-sbom-action@e4b0185fffeaf046797dfca7dd64239d276d300a # v1.1.0
 ```
 
 That's it. The action uses the default production API URL; no other inputs are required.

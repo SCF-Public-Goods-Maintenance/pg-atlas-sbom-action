@@ -1,7 +1,7 @@
 # Ecosystem support guide
 
 This guide explains the setup used by the [ecosystem examples](https://github.com/pgm-testing). Use
-the example for your ecosystem as a starting point, then check your own exported SBOM and Atlas
+the demo for your ecosystem as a starting point, then check your own exported SBOM and Atlas
 dependency relationships. The examples cover specific fixtures, not every package-manager
 configuration or project.
 
@@ -19,16 +19,9 @@ finish before checking whether the export reflects the new versions.
 
 ## Configure the Action
 
-Use the workflow and pinned Action revision shown in the relevant demo. The workflow needs:
-
-```yaml
-permissions:
-  contents: read
-  id-token: write
-```
-
-No Atlas secret or API key is needed. See the [README workflow example](../README.md#usage) for how
-to add the Action to your repository.
+Make sure that your project uses an Action revision and package manager version that are at least as
+recent as the ones in the relevant demo. See the [README workflow example](../README.md#usage) for
+how to add the Action to your repository.
 
 ## Tested ecosystem support
 
@@ -66,3 +59,15 @@ View your SBOM submissions in the API:
 
 - Processing status — `https://api.pgatlas.xyz/ingest/sbom?repository=owner%2Frepo`
 - Artifact read from IPFS — `https://api.pgatlas.xyz/ingest/sbom/{submission_id}`
+
+## How to report issues
+
+Open an issue if the verification run for your ecosystem is passing, you have followed the guidance,
+and the submitted SBOM or dependency relationships in Atlas are still lacking. Please describe your
+expectations and findings by opening an issue in the relevant demo repository. It is helpful if you
+can also create a PR with a minimal reproduction of the flaw.
+
+The demos are not automatically updated to use the latest version of the Action or ecosystem build
+tools. If an upgrade on your end led to errors in SBOM processing, please include links to your last
+successful workflow run, and the first one that demonstrates the flaw. If your workflow runs aren't
+public, we'll need a full description of the changes and the corresponding SBOM submission IDs.
